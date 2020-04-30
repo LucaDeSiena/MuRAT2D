@@ -56,84 +56,104 @@ for i = 1:length(x)
     end
 end
 
-if degorutm==111 && hasMT
+if degorutm == 111 && hasMT
+    
     load coastlines coastlat coastlon
+    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PLOTS
 
-rays=figure('Name','Rays','NumberTitle','off','visible',visib,...
-    'Position',[300,200,800,600]);
+rays                    =   figure('Name','Rays','NumberTitle','off',...
+    'visible',visib,'Position',[300,200,800,600]);
+
 if degorutm==111 && hasMT==1
+    
     hold on
     geoshow(coastlat,coastlon);
     xlim([origin(1) origin(1)+nxc*stepgx]);
     ylim([origin(2) origin(2)+nyc*stepgy]);
+    
 end
 
 for nn=1:lls
+    
     hold on
     plot([evestaz(nn,1) evestaz(nn,4)],...
         [evestaz(nn,2) evestaz(nn,5)],'k-')
+    
 end
+
 hold on
+
 scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
+
 scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
+
 hold off
+
 grid on
-ax = gca;
-ax.GridLineStyle = '-';
-ax.GridColor = 'k';
-ax.GridAlpha = 1;
-ax.LineWidth = 1;
-FName = 'Rays';
+
+ax                      =   gca;
+ax.GridLineStyle        =   '-';
+ax.GridColor            =   'k';
+ax.GridAlpha            =   1;
+ax.LineWidth            =   1;
+FName                   =   'Rays';
+
 saveas(rays,fullfile(FPath, FLabel, FName), fformat);
 
 if pa>1
     
-    Qcsen=figure('Name','Qc sensitivity, first source-station pair',...
+    Qcsen               =   figure('Name',...
+        'Qc sensitivity, first source-station pair',...
         'NumberTitle','off','visible',visib,'Position',[300,200,800,600]);
-    Qcss=Ac(1,:);
-    Qcs=zeros(nxc,nyc);
+    Qcss                =   Ac(1,:);
+    Qcs                 =   zeros(nxc,nyc);
     
-    index=0;
+    index               =   0;
     for i=1:length(x)
         for j=1:length(y)
-            index=index+1;
-            Qcs(i,j)=Qcss(index);
+            
+            index       =   index+1;
+            Qcs(i,j)    =   Qcss(index);
+            
         end
     end
     
-    [X,Y]=meshgrid(x,y);
     contourf(X,Y,Qcs')
-    
     colorbar
+    
     grid on
-    ax = gca;
-    ax.GridLineStyle = '-';
-    ax.GridColor = 'k';
-    ax.GridAlpha = 1;
-    ax.LineWidth = 1;
+    ax                  =   gca;
+    ax.GridLineStyle    =   '-';
+    ax.GridColor        =   'k';
+    ax.GridAlpha        =   1;
+    ax.LineWidth        =   1;
+    
     if degorutm==111 && hasMT==1
+        
         hold on
         geoshow(coastlat,coastlon);
         xlim([origin(1) origin(1)+nxc*stepgx]);
         ylim([origin(2) origin(2)+nyc*stepgy]);
+        
     end
     
-    FName = 'Qc_sensitivity';
+    FName               =   'Qc_sensitivity';
     saveas(Qcsen,fullfile(FPath, FLabel, FName), fformat);
+    
 end
 
 %plot to check that Qc is constant with travel time and peak delays
 %increase with travel time
 
-Qcpd=figure('Name','Qc and peak-delays','NumberTitle','off',...
-    'visible',visib,'Position',[300,200,800,600]);
+Qcpd                    =   figure('Name','Qc and peak-delays',...
+    'NumberTitle','off','visible',visib,'Position',[300,200,800,600]);
+
 subplot(2,1,1)
 plot(time0(retainQm),Qm(retainQm),'o',...
     'MarkerSize',6,'MarkerEdgeColor',[0 0 0])
@@ -149,14 +169,15 @@ legend({'Qc^{-1}',cat(2,'<Qc> = ',num2str(1/mQm))},...
 
 subplot(2,1,2)
 plot(fitrobust,'k--',l10l,log10(peakd),'ko',outlierspd,'r*')
-xti=xticks;
-xtl=length(xti);
-xt=cell(xtl,1);
+xti                     =   xticks;
+xtl                     =   length(xti);
+xt                      =   cell(xtl,1);
 for i=1:length(xti)
-    xt(i,1)={10^xti(i)};
+    xt(i,1)             =   {10^xti(i)};
 end
-nameText=cat(2,'A(f) = ',num2str(fitrobust.p2),', B(f) = ',...
-    num2str(fitrobust.p1));
+
+nameText                =   cat(2,'A(f) = ',num2str(fitrobust.p2),...
+    ', B(f) = ',num2str(fitrobust.p1));
 xticklabels(xt)
 title('Dependence of log. peak delays on log. travel time');
 xlabel('Travel time (s)','FontSize',12,'FontWeight','bold',...
@@ -166,17 +187,17 @@ ylabel('Log. Peak delay','FontSize',12,...
 legend('Location','southeast')
 text(mean(l10l),max(log10(peakd)),nameText,'HorizontalAlignment','center',...
     'FontSize',14)
-FName = 'Qc_Peak_Delay';
+FName                   =   'Qc_Peak_Delay';
 saveas(Qcpd, fullfile(FPath, FLabel, FName), fformat);
 
 
-pdmap=figure('Name','Peak-delay map','NumberTitle','off',...
-    'visible',visib,'Position',[300,200,800,600]);
+pdmap                   =   figure('Name','Peak-delay map',...
+    'NumberTitle','off','visible',visib,'Position',[300,200,800,600]);
 contourf(X,Y,pdel');
 axis equal
 view(2)
 colormap(autumn);
-hcb=colorbar;
+hcb                     =   colorbar;
 title(hcb,'Log. Peak Delay','FontSize',14,'FontWeight','bold','Color','k');
 
 xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
@@ -189,56 +210,63 @@ scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
 hold on
 scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
+
 if degorutm==111 && hasMT==1
+
     hold on
     geoshow(coastlat,coastlon);
     xlim([origin(1) origin(1)+nxc*stepgx]);
     ylim([origin(2) origin(2)+nyc*stepgy]);
+
 end
 hold off
-FName = 'Peak_delay_map';
+FName                   =   'Peak_delay_map';
 saveas(pdmap,fullfile(FPath, FLabel, FName), fformat);
 
-Qcmap=figure('Name','Qc map','NumberTitle','off',...
+Qcmap                   =   figure('Name','Qc map','NumberTitle','off',...
     'visible',visib,'Position',[300,200,800,600]);
 contourf(X,Y,QQc');
 axis equal
 view(2)
 colormap(copper)
 
-hcb=colorbar;
+hcb                     =   colorbar;
 title(hcb,'Qc^{-1}','FontSize',14,'FontWeight','bold','Color','k');
 
 xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
 ylabel('SN','FontSize',12,'FontWeight','bold','Color','k')
 title('Coda attenuation variations','FontSize',12,'FontWeight','bold',...
     'Color','k');
+
 hold on
 scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
 scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
+
 if degorutm==111 && hasMT==1
+    
     hold on
     geoshow(coastlat,coastlon);
     xlim([origin(1) origin(1)+nxc*stepgx]);
     ylim([origin(2) origin(2)+nyc*stepgy]);
+
 end
 hold off
-FName = 'Qc_map';
+FName                   =   'Qc_map';
 saveas(Qcmap,fullfile(FPath, FLabel, FName), fformat);
 
 %Checkerboard Qc
-Qccheck=figure('Name','Qc checkerboard','NumberTitle',...
-    'off','visible',visib,'Position',[300,200,1000,600]);
+Qccheck                 =   figure('Name','Qc checkerboard',...
+    'NumberTitle','off','visible',visib,'Position',[300,200,1000,600]);
+
 subplot(1,2,1)
 contourf(X,Y,QQchi');
 axis equal
 view(2)
 colormap(gray)
 
-hcb=colorbar;
+hcb                     =   colorbar;
 title(hcb,'Qc^{-1}','FontSize',14,'FontWeight','bold','Color','k');
 
 xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
@@ -249,14 +277,15 @@ title('Qc checherboard input',...
 hold on
 scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
 scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
+
 if degorutm==111 && hasMT==1
-    hold on
+
     geoshow(coastlat,coastlon);
     xlim([origin(1) origin(1)+nxc*stepgx]);
     ylim([origin(2) origin(2)+nyc*stepgy]);
+
 end
 hold off
 
@@ -266,7 +295,7 @@ axis equal
 view(2)
 colormap(gray)
 
-hcb=colorbar;
+hcb                     =   colorbar;
 title(hcb,'Qc^{-1}','FontSize',14,'FontWeight','bold','Color','k');
 
 xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
@@ -277,129 +306,134 @@ title('Qc checherboard output',...
 hold on
 scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
 scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
 hold off
+
 if degorutm==111 && hasMT==1
+
     hold on
     geoshow(coastlat,coastlon);
     xlim([origin(1) origin(1)+nxc*stepgx]);
     ylim([origin(2) origin(2)+nyc*stepgy]);
+
 end
 hold off
 
-FName = 'Qc_checkerboard';
+FName                   =   'Qc_checkerboard';
 saveas(Qccheck,fullfile(FPath, FLabel, FName), fformat);
 
 %Parameter analysis
-pdd =  abs(pd(:,4))>10^(-10);
-pdef=pd(pdd,:);
-Qcef=Qc(pdd,:);
+pdd                     =   abs(pd(:,4))>10^(-10);
+pdef                    =   pd(pdd,:);
+Qcef                    =   Qc(pdd,:);
 
 
 
-pdef(:,4)=pdef(:,4)-mean(pdef(:,4));
-Qcef(:,4)=Qcef(:,4)-mean(Qcef(:,4));
-mipdm=min(pdef(:,4));
-mapdm=max(pdef(:,4));
-miQcm=min(Qcef(:,4));
-maQcm=max(Qcef(:,4));
-trepd=0.01*std(pdef(:,4));
-treQc=0.01*std(Qcef(:,4));
+pdef(:,4)               =   pdef(:,4)-mean(pdef(:,4));
+Qcef(:,4)               =   Qcef(:,4)-mean(Qcef(:,4));
+mipdm                   =   min(pdef(:,4));
+mapdm                   =   max(pdef(:,4));
+miQcm                   =   min(Qcef(:,4));
+maQcm                   =   max(Qcef(:,4));
+trepd                   =   0.01*std(pdef(:,4));
+treQc                   =   0.01*std(Qcef(:,4));
 
-Qps=Qcef(:,4);
-pdps=pdef(:,4);
+Qps                     =   Qcef(:,4);
+pdps                    =   pdef(:,4);
 
 param_plot=figure('Name','Parameter space separation',...
     'NumberTitle','off','visible',visib,'Position',[300,200,800,600]);
 
-par=pdef(:,1:2);
-par(:,3)=pdef(:,3);
+par                     =   pdef(:,1:2);
+par(:,3)                =   pdef(:,3);
 
-c=Qps<-treQc & pdps<-trepd;
-par(c,4)=1;
+c                       =   Qps<-treQc & pdps<-trepd;
+par(c,4)                =   1;
 scatter(Qps(c),pdps(c),65,'filled','MarkerFaceColor',[0 0.8 0])
+
 hold on
 line([0 0],[mipdm-trepd mapdm+trepd],'Color',[0 0 0],...
     'LineWidth',3)
-hold on
 line([miQcm-treQc maQcm+treQc],[0 0],'Color',[0 0 0],...
     'LineWidth',3)
-hold on
-c=Qps<-treQc & pdps>trepd;
-par(c,4)=2;
+c                       =   Qps<-treQc & pdps>trepd;
+par(c,4)                =   2;
 scatter(Qps(c),pdps(c),65,'filled','MarkerFaceColor',[0 0.6 1])
-hold on
-c=Qps>treQc & pdps<-trepd;
-par(c,4)=3;
+
+c                       =   Qps>treQc & pdps<-trepd;
+par(c,4)                =   3;
 scatter(Qps(c),pdps(c),65,'filled','MarkerFaceColor',[1 0.6 0])
-hold on
-c=Qps>treQc & pdps>trepd;
-par(c,4)=4;
+
+c                       =   Qps>treQc & pdps>trepd;
+par(c,4)                =   4;
 scatter(Qps(c),pdps(c),65,'filled','MarkerFaceColor',[1 0 0])
-hold on
-c=(Qps>-treQc & Qps<treQc) | (pdps>-trepd & pdps<trepd);
-par(c,4)=0;
+
+c                       =   (Qps>-treQc & Qps<treQc) | (pdps>-trepd & pdps<trepd);
+par(c,4)                =   0;
 scatter(Qps(c),pdps(c),85,'filled','MarkerFaceColor',[0.7 0.7 0.7],...
     'MarkerEdgeColor',[1 1 1],'LineWidth',2)
 hold off
-% xlim([miQcm-treQc maQcm+treQc])
-% ylim([mipdm-trepd mapdm+trepd])
+
 xlabel('Qc','FontSize',12,'FontWeight','bold','Color','k')
 ylabel('Log. peak delay','FontSize',12,'FontWeight','bold','Color','k')
 title('Parameter space plot',...
     'FontSize',12,'FontWeight','bold','Color','k');
-FName = 'Parameter_space_variations';
+FName                   =   'Parameter_space_variations';
 saveas(param_plot,fullfile(FPath, FLabel, FName), fformat);
 
-para=pd(:,1:3);
+para                    =   pd(:,1:3);
 for k=1:length(par(:,1))
-    px=par(k,1);
-    py=par(k,2);
-    pp=par(k,4);
-    pf= pd(:,1)==px & pd(:,2)==py;
-    para(pf,4)=pp;
+    px                  =   par(k,1);
+    py                  =   par(k,2);
+    pp                  =   par(k,4);
+    pf                  =   pd(:,1)==px & pd(:,2)==py;
+    para(pf,4)          =   pp;
 end
 
 index=0;
 param=zeros(size(QQc));
 for i=1:length(x)
     for j=1:length(y)
-        index=index+1;
-        param(i,j)=para(index,4)-5;
+        index           =   index+1;
+        param(i,j)      =   para(index,4)-5;
     end
 end
 
-mparam=figure('Name','Parameter separation map',...
+mparam                  =   figure('Name','Parameter separation map',...
     'NumberTitle','off','visible',visib,'Position',[300,200,800,600]);
 surf(X,Y,param');
 view(2)
 un_X = unique(param);
 
-fu=find(un_X==-1,1);
+fu                      =   find(un_X==-1,1);
 if isempty(fu)
-    cmap = [0.7 0.7 0.7;  0 0.8 0; 0 0.6 1; 1 0.6 0];
-    HTick={'Average','Ls La','Hs La','Ls Ha'};
+    
+    cmap                =   [0.7 0.7 0.7;  0 0.8 0; 0 0.6 1; 1 0.6 0];
+    HTick               =   {'Average','Ls La','Hs La','Ls Ha'};
+    
 else
-    cmap = [0.7 0.7 0.7;  0 0.8 0; 0 0.6 1; 1 0.6 0; 1 0 0];
-    HTick={'Average','Ls La','Hs La','Ls Ha','Hs Ha'};
+    
+    cmap                = [0.7 0.7 0.7;  0 0.8 0; 0 0.6 1; 1 0.6 0; 1 0 0];
+    HTick               ={'Average','Ls La','Hs La','Ls Ha','Hs Ha'};
+    
 end
 colormap(cmap)
-
 colorbar('Ticks',un_X,'TickLabels',HTick);
 
 hold on
 scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
 scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
     [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
+
 if degorutm==111 && hasMT==1
+    
     hold on
     geoshow(coastlat,coastlon);
     xlim([origin(1) origin(1)+nxc*stepgx]);
     ylim([origin(2) origin(2)+nyc*stepgy]);
+    
 end
 hold off
 xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
@@ -407,5 +441,5 @@ ylabel('SN','FontSize',12,'FontWeight','bold','Color','k')
 axis square
 title('Parameter separation','FontSize',12,'FontWeight','bold',...
     'Color','k');
-FName = 'Parameter_map';
+FName                   =   'Parameter_map';
 saveas(mparam,fullfile(FPath, FLabel, FName), fformat);

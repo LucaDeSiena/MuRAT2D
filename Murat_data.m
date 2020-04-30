@@ -365,16 +365,15 @@ end
 %% Setting up the data vector in case of 2- and 3-components data
 icomp                           =   0;
 ll                              =   lls;
+lA                              =   length(Ac(:,1));
 
 %Only one waveform component
 if compon > 1 
-    lA                          =   length(Ac(:,1));
     Ac                          =   Ac(1:compon:lA,:);
     Apd                         =   Apd(1:compon:lA,:);
     Murat.inversion.APeakDelay  =   Apd;
     Murat.inversion.AQCoda      =   Ac;
 end
-lA                              =   length(Ac(:,1));
 lu                              =   D(1:compon:lA);
 time0                           =   tPS(1:compon:lA);
 
@@ -387,9 +386,9 @@ if compon ==  2
     
     for i = 1:compon:(ll-1)
         icomp                   =   icomp+1;
-        Qm1(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
-        RZZ1(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
-        peakd1(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
+        Qm(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
+        RZZ(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
+        peakd(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
     end
     
     Qm                          =   Qm1;
@@ -407,10 +406,9 @@ elseif compon == 3
         icomp                   =   icomp+1;
         
         %Averaging the horizontals before the vertical
-        Qm1(icomp,1)            =   ((Qm1(i)+Qm1(i+1))/2 + Qm1(i+2))/2;
-        RZZ1(icomp,1)           =   ((RZZ1(i)+RZZ1(i+1))/2 + RZZ1(i+2))/2;
-        peakd1(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 + peakd(i+2))/2;
-        lu(icomp,1)=D(i);
+        Qm(icomp,1)            =   ((Qm1(i)+Qm1(i+1))/2 + Qm1(i+2))/2;
+        RZZ(icomp,1)           =   ((RZZ1(i)+RZZ1(i+1))/2 + RZZ1(i+2))/2;
+        peakd(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
     end
     
     Qm                          =   Qm1;
