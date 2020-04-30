@@ -24,13 +24,13 @@
 % Unzip the MSH (Mount St. Helens) and Romania datasets and put
 % the folders in the Murat-master folder.
 %
-% 3. Build your own input file (.xsl) - each field is described in the
-% attached README file and in the INPUT sections of thi code.
+% 3. Build your own input file (.m) - each field is described in the
+% attached README file and in the INPUT sections of the code.
 % When building your example, use one of the Input
 % files as template (MSH for 3D and Romania for 2D). Always start with an
 % analytic 2D analysis (“pa=2”).
 %
-% 4. Run MuRAT2.m.
+% 4. Run MuRAT2_2.m.
 %
 % 5. Select the name of the input file desired
 % (Input_MSH.m, Input_Romania.m, Input_Pollino and Input_OlDoinyo).
@@ -46,35 +46,43 @@
 % Kernel-based 2D coda attenuation: Del Pezzo et al. 2016 (GJI);
 % De Siena et al. 2017 (GRL); Napolitano et al. 2019 (Geos. Fron.)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% INPUTS AND CHECKS
+%% INPUTS
 
-unzip('Utilities_Matlab.zip','Utilities_Matlab')
 addpath('./Utilities_Matlab')
 
-clear
-close all
-clc
+clear; close all; clc
 
-[file,path] = uigetfile('*.m');
+[file,path]                         =   uigetfile('*.m');
+
 if isequal(file,0)
    disp('User selected Cancel');
 else
    disp(['User selected ', fullfile(path,file)]);
 end
+
 run(fullfile(path, file))
+%% CHECKS
+
+disp('Checks and Loops')
+
+Murat                               =   Murat_checks(Murat);
+
 %% Seismic attributes for peak delay and Qc imaging
+
 disp('Data Section')
 
-Murat=Murat_data(Murat);
+Murat                               =   Murat_data(Murat);
 
 %%  2D peak-delay and Qc TOMOGRAPHIC INVERSIONS
+
 disp('Inversion Section')
 
-Murat=Murat_inversion(Murat);
+Murat                               =   Murat_inversion(Murat);
 
 %% Creating maps
+
 disp('Plot Section')
 
-Murat=Murat_plot(Murat);
+Murat                               =   Murat_plot(Murat);
 
 save('Murat.mat','Murat');

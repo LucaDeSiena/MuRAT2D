@@ -1,59 +1,57 @@
 %%  Creates maps
 function Murat=Murat_plot(Murat)
-hasMT=Murat.figures.hasMT;
 
-pa=Murat.analysis;
+hasMT                   =   Murat.figures.hasMT;
+
+pa                      =   Murat.analysis;
 
 %PATHS and FIGURES
-FPath=Murat.paths.workingdir;
-FLabel=Murat.paths.label;
-visib=Murat.figures.visibility;
-sz=Murat.figures.sizeMarker;
-fformat=Murat.figures.format;
+FPath                   =   Murat.paths.workingdir;
+FLabel                  =   Murat.paths.label;
+visib                   =   Murat.figures.visibility;
+sz                      =   Murat.figures.sizeMarker;
+fformat                 =   Murat.figures.format;
 
 %DATA
-lls=length(Murat.paths.listasac);
-Qm=Murat.data.measuredQc;
-outlierspd=Murat.data.outliersPeakDelay;
-time0=Murat.data.theoreticalTravelTime;
-mQm=Murat.data.averageQc;
-retainQm=Murat.data.retainQm;
-l10l=Murat.data.logTravelPD;
-fitrobust=Murat.data.fitrobust;
-peakd=Murat.data.peakd;
+lls                     =   length(Murat.paths.listasac);
+Qm                      =   Murat.data.measuredQc;
+outlierspd              =   Murat.data.outliersPeakDelay;
+time0                   =   Murat.data.theoreticalTravelTime;
+mQm                     =   Murat.data.averageQc;
+retainQm                =   Murat.data.retainQm;
+l10l                    =   Murat.data.logTravelPD;
+fitrobust               =   Murat.data.fitrobust;
+peakd                   =   Murat.data.peakd;
 
 %GEOMETRY
-origin=Murat.geometry.origin;
-stepgx=Murat.geometry.gridStepX;
-stepgy=Murat.geometry.gridStepY;
-nxc=Murat.geometry.gridX;
-nyc=Murat.geometry.gridY;
-x=Murat.geometry.x;
-y=Murat.geometry.y;
-degorutm=Murat.geometry.degreesorutm;
-evestaz=Murat.geometry.evestaz;
-Ac=Murat.inversion.AQCoda;
-pd=Murat.inversion.peakDelay;
-Qc=Murat.inversion.Qc;
+origin                  =   Murat.geometry.origin;
+stepgx                  =   Murat.geometry.gridStepX;
+stepgy                  =   Murat.geometry.gridStepY;
+nxc                     =   Murat.geometry.gridX;
+nyc                     =   Murat.geometry.gridY;
+x                       =   Murat.geometry.x;
+y                       =   Murat.geometry.y;
+degorutm                =   Murat.geometry.degreesorutm;
+evestaz                 =   Murat.geometry.evestaz;
+Ac                      =   Murat.inversion.AQCoda;
+pd                      =   Murat.inversion.peakDelay;
+Qc                      =   Murat.inversion.Qc;
 
-pdel=zeros(length(x),length(y));
-QQc=zeros(length(x),length(y));
-pdchi=zeros(length(x),length(y));
-pdcho=zeros(length(x),length(y));
-QQchi=zeros(length(x),length(y));
-QQcho=zeros(length(x),length(y));
-[X,Y]=meshgrid(x,y);
-index=0;
-for i=1:length(x)
-    for j=1:length(y)
+pdel                    =   zeros(length(x),length(y));
+QQc                     =   zeros(length(x),length(y));
+QQchi                   =   zeros(length(x),length(y));
+QQcho                   =   zeros(length(x),length(y));
+[X,Y]                   =   meshgrid(x,y);
+
+index                   =   0;
+for i = 1:length(x)
+    for j = 1:length(y)
         
-        index=index+1;
-        pdel(i,j)=pd(index,4);
-        QQc(i,j)=Qc(index,4);
-        pdchi(i,j)=pd(index,5);
-        pdcho(i,j)=pd(index,6);
-        QQchi(i,j)=Qc(index,5);
-        QQcho(i,j)=Qc(index,6);
+        index           =   index+1;
+        pdel(i,j)       =   pd(index,4);
+        QQc(i,j)        =   Qc(index,4);
+        QQchi(i,j)      =   Qc(index,5);
+        QQcho(i,j)      =   Qc(index,6);
         
     end
 end
@@ -231,69 +229,6 @@ hold off
 FName = 'Qc_map';
 saveas(Qcmap,fullfile(FPath, FLabel, FName), fformat);
 
-%Checkerboard Peak Delay
-PDcheck=figure('Name','Peak Delay checkerboard test','NumberTitle',...
-    'off','visible',visib,'Position',[300,200,1000,600]);
-subplot(1,2,1)
-contourf(X,Y,pdchi');
-axis equal
-view(2)
-colormap(gray)
-
-hcb=colorbar;
-title(hcb,'log10 peak delay','FontSize',14,'FontWeight','bold','Color','k');
-
-xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
-ylabel('SN','FontSize',12,'FontWeight','bold','Color','k')
-title('Qc checherboard input',...
-    'FontSize',12,'FontWeight','bold','Color','k');
-
-hold on
-scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
-    [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
-scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
-    [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-if degorutm==111 && hasMT==1
-    hold on
-    geoshow(coastlat,coastlon);
-    xlim([origin(1) origin(1)+nxc*stepgx]);
-    ylim([origin(2) origin(2)+nyc*stepgy]);
-end
-hold off
-
-subplot(1,2,2)
-contourf(X,Y,pdcho');
-axis equal
-view(2)
-colormap(gray)
-
-hcb=colorbar;
-title(hcb,'log10 peak delay','FontSize',14,'FontWeight','bold','Color','k');
-
-xlabel('WE','FontSize',12,'FontWeight','bold','Color','k')
-ylabel('SN','FontSize',12,'FontWeight','bold','Color','k')
-title('Peak Delay checherboard output',...
-    'FontSize',12,'FontWeight','bold','Color','k');
-
-hold on
-scatter(evestaz(:,1),evestaz(:,2),sz,'c','MarkerEdgeColor',...
-    [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold on
-scatter(evestaz(:,4),evestaz(:,5),sz,'^','MarkerEdgeColor',...
-    [1 1 1], 'MarkerFaceColor',[.5 .5 .5], 'LineWidth',1)
-hold off
-if degorutm==111 && hasMT==1
-    hold on
-    geoshow(coastlat,coastlon);
-    xlim([origin(1) origin(1)+nxc*stepgx]);
-    ylim([origin(2) origin(2)+nyc*stepgy]);
-end
-hold off
-
-FName = 'PD_checkerboard';
-saveas(PDcheck,fullfile(FPath, FLabel, FName), fformat);
-
 %Checkerboard Qc
 Qccheck=figure('Name','Qc checkerboard','NumberTitle',...
     'off','visible',visib,'Position',[300,200,1000,600]);
@@ -409,8 +344,8 @@ par(c,4)=0;
 scatter(Qps(c),pdps(c),85,'filled','MarkerFaceColor',[0.7 0.7 0.7],...
     'MarkerEdgeColor',[1 1 1],'LineWidth',2)
 hold off
-xlim([miQcm-treQc maQcm+treQc])
-ylim([mipdm-trepd mapdm+trepd])
+% xlim([miQcm-treQc maQcm+treQc])
+% ylim([mipdm-trepd mapdm+trepd])
 xlabel('Qc','FontSize',12,'FontWeight','bold','Color','k')
 ylabel('Log. peak delay','FontSize',12,'FontWeight','bold','Color','k')
 title('Parameter space plot',...

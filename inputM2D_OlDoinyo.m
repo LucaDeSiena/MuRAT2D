@@ -2,6 +2,7 @@
 % EVERYTHING MARKED BY 'E' IS TO/CAN BE EDITED
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% GENERAL - CHOICES
 % Which analysis do you want to perform?
 % Pick delay and Qc without kernels: pa=1 - De Siena et al. 2016 EPSL
@@ -14,7 +15,7 @@ Murat.analysis                              =  2;%'E'
 %Treshold to reduce computational time for Pacheco-Snieder kernels.
 %It divides the inversion grid by the treshold.
 if Murat.analysis == 3
-    Murat.geometry.kernelTreshold           =  5;%'E'
+    Murat.geometry.kernelTreshold           =  2;%'E'
 end
 
 % INPUT DATA
@@ -25,22 +26,22 @@ end
 Murat.data.PorS                             =  2; %'E'
 
 % Central frequency (Hz) - set it according to your spectrograms
-Murat.data.centralFrequency                 =  6;%'E'
+Murat.data.centralFrequency                 =  12;%'E'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PATHS AND FIGURES
 % Working directory
 Murat.paths.workingdir                      =  './';%'E'
 
 % Folder containing data
-Murat.paths.datadir                         =  './sac_Romania/*.sac';%'E'
+Murat.paths.datadir                         =  './sac_OlDoinyo/*Z.sac';%'E'
 
 % Name of folder to store results and figures
-Murat.paths.label                           =  'Romania';%'E'
+Murat.paths.label                           =  'OlDoinyo';%'E'
 
 % Name of the SAC variables where zero time and P/S pickings are saved
 Murat.paths.originTime                      =  'SAChdr.times.o';%'E'
 Murat.paths.PTime                           =  'SAChdr.times.t0';%'E'
-Murat.paths.STime                           =  [];%'E'
+Murat.paths.STime                           =  'SAChdr.times.t1';%'E'
 
 %Figure format - 'jpeg' (fast) or 'tiff' (for publication)
 Murat.figures.format                        =  'jpeg';%'E'
@@ -58,17 +59,17 @@ Murat.data.components                       =  1;%'E'
 Murat.data.smoothing                        =  8;%'E'
 
 % Maximum window to pick pick-delays in seconds
-Murat.data.maximumPD                        =  10;%'E'
+Murat.data.maximumPD                        =  15;%'E'
 
 % Minimum peak delay considering scattering in the area and frequency
 Murat.data.minimumPD                        =  0.5;%'E'
 
 % Lapse time for the start of the window used to measure and calculate the
 % normalization energy
-Murat.data.startLT                          =  30;%'E'
+Murat.data.startLT                          =  [];%'E'
 
 % Total coda window length for Qc and normalization
-Murat.data.codaWindow                       =  30;%'E'
+Murat.data.codaWindow                       =  20;%'E'
 
 % The sped coefficient sets the spectral energy decay of the coda
 % wavefield
@@ -85,7 +86,7 @@ Murat.data.averageVelocityP                 =  6;%'E'
 Murat.data.averageVelocityS                 =  3;%'E'
 
 %name of the velocity model - if options (1) or (2) 
-Murat.data.namev                            =  [];%'E'
+Murat.data.namev                            =  'modv.txt';%'E'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% GEOMETRY
 % Import event origin time and coords of event and station from files
@@ -104,22 +105,22 @@ Murat.geometry.createrays                   =  0;%'E'
 %
 % (2) at least one cell after the easternmost and northermost
 % earthquakes/station for positive latitudes and longitudes
-Murat.geometry.origin                       =  [20 43];%'E'
-Murat.geometry.end                          =  [29 48];%'E'
+Murat.geometry.origin                       =  [35.7 -3];%'E'
+Murat.geometry.end                          =  [36.3 -2.4];%'E'
 
 %Step of the grid and number of nodes for pd and Qc imaging
-Murat.geometry.gridX                        =  10;%'E'
-Murat.geometry.gridY                        =  6;%'E'
+Murat.geometry.gridX                        =  24;%'E'
+Murat.geometry.gridY                        =  24;%'E'
 
 %Set if in meters (1) or degrees (111)
-Murat.geometry.degreesorutm                 =  111;%'E'
+Murat.geometry.degreesorutm                 =  111;%'E' 
 
-%Rays measured in meters or degrees.
+%Rays measured in meters or degrees
 if Murat.geometry.degreesorutm == 1
     %Set it to either 1 (km) or 1000 (meters)
     Murat.geometry.unity                    =  1000;%E
 elseif Murat.geometry.degreesorutm == 111
-    Murat.geometry.unity                    =  1;
+    Murat.geometry.unity                    =  1;%E
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% INVERSION
