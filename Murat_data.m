@@ -194,7 +194,7 @@ for i = 1:lls %loop through source-station pairs
     %measuring envelopes from the peak of the direct wave, assuming that
     %the entire waveform is diffusive (e.g., Deception Island).
     if isequal(tCm,[])
-        tC                  =   (pktime-t00-t0)+tspm/srate; %in case you start from max
+        tC                  =   (pktime-t0)+tspm/srate; %in case you start from max
     else
         tC                  =   tCm;
     end
