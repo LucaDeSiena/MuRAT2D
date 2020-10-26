@@ -65,16 +65,13 @@ y           = linspace(Murat.geometry.origin(2),Murat.geometry.end(2),nyc);
 Murat.geometry.gridStepX    = x(2)-x(1);
 Murat.geometry.gridStepY    = y(2)-y(1);
 
-stepgx                      = Murat.geometry.gridStepX;
-stepgy                      = Murat.geometry.gridStepY;
-
 %pre-define 2D matrix in space
 XY                          = zeros(floor(nxc)*floor(nyc),2);
 
 
 % Some figures require moving the point of plotting to half the resolution
-Murat.geometry.x            = x+stepgx/2;
-Murat.geometry.y            = y+stepgy/2;
+Murat.geometry.x            = x;
+Murat.geometry.y            = y;
 
 index=0;
 for i=1:nxc
@@ -114,11 +111,12 @@ indexray                    = 0;
 for i = 1:lls
     listasac{i,1}           = cat(2,filedir{i},'/',filenames{i});
     li                      = filenames{i,1};
-    li1                     = cat(2,li(1:12),li(18:20));
         
     %Here it takes the event/station name. It is necessary to adapt the
     %numbers to where even name and station name are.
     if Murat.geometry.import == 1
+        li1                     = cat(2,li(1:12),li(18:20));
+    
         for ii = 1:length(nameeven)
             namee1          = nameeven{ii};
             namee           = namee1(1:12);

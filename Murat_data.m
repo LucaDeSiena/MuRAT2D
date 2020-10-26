@@ -321,7 +321,7 @@ for i = 1:lls %loop through source-station pairs
         end
         Ac(i,:)=Apd(i,:);
     end
-
+    
     %Inversion matrix for Qc
     if pa == 2 % Approximate kernels
         
