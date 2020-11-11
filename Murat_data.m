@@ -36,6 +36,7 @@ xx              =   XY(:,1);
 yy              =   XY(:,2);
 lxy             =   length(xx);
 x1              =   Murat.geometry.x;
+y1              =   Murat.geometry.y;
 
 % INVERSION
 nonlinear       =   Murat.inversion.nonlinear;
@@ -271,31 +272,54 @@ for i = 1:lls %loop through source-station pairs
     maax                    =   max(sst(1),sst(4));
     miiy                    =   min(sst(2),sst(5));
     maay                    =   max(sst(2),sst(5));
-    if abs(maax-miix) > abs(x1(2)-x1(1)) && abs(maay-miiy) > abs(yy(2)-yy(1))
-        fxy                 =   find(xx>miix & xx<maax & yy>miiy & yy<maay);
-    elseif abs(maax-miix) > abs(x1(2)-x1(1)) && abs(maay-miiy) < abs(yy(2)-yy(1))
-        fxy                 =   find(xx>miix & xx<maax & yy>miiy & maay<yy);
-    elseif abs(maax-miix) < abs(x1(2)-x1(1)) && abs(maay-miiy) > abs(yy(2)-yy(1))
-        fxy                 =   find(xx>miix & maax<xx & yy>miiy & yy<maay);
+    
+    startNode               =   find(xx<miix & yy<miiy,1,'last');
+    dist1                   =   sqrt((maax-miix)^2+(maay-miiy)^2);
+    fx                      =   xx>miix & xx<maax;
+    fy                      =   yy>miiy & yy<maay;
+    
+    if isempty(find(fx, 1)) && isempty(find(fy, 1))
+        label               =   startNode;
+        Apd(i,label)        =   dist1;
     else
-        fxy                 =   find(xx>miix & maax<xx & yy>miiy & maay<yy);
-    end
+        %%%=NEW CODE - looking for slope and intercept
+        mb                  =   polyfit([sst(1) sst(4)]-x1(1),[sst(2) sst(5)]-y1(1),1);
+        x                   =   x1-x1(1);  % X-range no origin
+        y                   =   y1-y1(1);  % Y-range no origin
+        lxmb                =   @(x,mb) mb(1).*x + mb(2);% Line equation
+        line1               =   lxmb(x,mb);% Calculate Line #1 = y(x,m,b)
+        hix                 =   @(y,mb) [(y-mb(2))./mb(1);  y];% H intercepts
+        vix                 =   @(x,mb) [x;  lxmb(x,mb)];% V intercepts
+        hrz                 =   hix(x(2:end),mb)';% [X Y] Matrix of H intercepts
+        vrt                 =   vix(y(1:6),mb)';% [X Y] Matrix of V intercepts
         
-    lfxy                    =   length(fxy);
-    
-    xd                      =   linspace(miix,maax,lfxy);
-    yd                      =   linspace(miiy,maay,lfxy);
-    dist                    =   sqrt((maax-miix)^2+(maay-miiy)^2)/(lfxy+1);
-    
-    for l = 1:length(xd)
-        pointer             =   [xd(l), yd(l)];
-        targ                =   XY(:,1:2);
-        %compute Euclidean distances:
-        distances           =   sqrt(sum(bsxfun(@minus, targ, pointer).^2,2));
-        %find the smallest distance and use that as an index into B:
-        mind                =   distances==min(distances);
-        Apd(i,mind)         =   Apd(i,mind)+dist;
-        Ac(i,mind)          =   Ac(i,mind)+dist;      
+        %Add back origin and set up columns
+        hrz                 =   [hrz(:,1)+x1(1) hrz(:,2)+y1(1)];
+        vrt                 =   [vrt(:,1)+x1(1) vrt(:,2)+y1(1)];
+        %Find intercepts in segment
+        svrt = vrt(vrt(:,1)>miix & vrt(:,1)<maax,:);
+        shrz = hrz(hrz(:,2)>miiy & hrz(:,2)<maay,:);
+        %Add source and station
+        m1                  =   [sst(1) sst(2)];
+        m2                  =   [sst(4) sst(5)];
+        %Order by x
+        s=sortrows([m1; svrt; shrz; m2]);
+        ls1=length(s);
+        %Calculate lengths
+        diffs=diff(s);
+        ls=length(diffs(:,1));
+        for sss=1:ls
+            diffs(sss,3)=sqrt(diffs(sss,1)^2+diffs(sss,2)^2);
+        end
+        s(2:ls1,3)=diffs(:,3);
+        %Find blocks
+        for kn=2:ls1
+            label               =...
+                find(xx<s(kn,1) & yy<s(kn,2),1,'last');
+            s(kn,4)             =   label;
+            Apd(i,label)        =   Apd(i,label)+ s(kn,3);
+        end
+        Ac(i,:)=Apd(i,:);
     end
     
     
@@ -386,9 +410,9 @@ if compon ==  2
     
     for i = 1:compon:(ll-1)
         icomp                   =   icomp+1;
-        Qm(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
-        RZZ(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
-        peakd(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
+        Qm1(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
+        RZZ1(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
+        peakd1(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
     end
     
     Qm                          =   Qm1;
@@ -406,9 +430,9 @@ elseif compon == 3
         icomp                   =   icomp+1;
         
         %Averaging the horizontals before the vertical
-        Qm(icomp,1)            =   ((Qm1(i)+Qm1(i+1))/2 + Qm1(i+2))/2;
-        RZZ(icomp,1)           =   ((RZZ1(i)+RZZ1(i+1))/2 + RZZ1(i+2))/2;
-        peakd(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
+        Qm1(icomp,1)            =   ((Qm(i)+Qm(i+1))/2 + Qm(i+2))/2;
+        RZZ1(icomp,1)           =   ((RZZ1(i)+RZZ(i+1))/2 + RZZ(i+2))/2;
+        peakd1(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
     end
     
     Qm                          =   Qm1;
