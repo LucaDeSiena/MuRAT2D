@@ -36,6 +36,7 @@ xx              =   XY(:,1);
 yy              =   XY(:,2);
 lxy             =   length(xx);
 x1              =   Murat.geometry.x;
+y1              =   Murat.geometry.y;
 
 % INVERSION
 nonlinear       =   Murat.inversion.nonlinear;
@@ -286,7 +287,7 @@ for i = 1:lls %loop through source-station pairs
         x                   =   x1-x1(1);  % X-range no origin
         y                   =   y1-y1(1);  % Y-range no origin
         lxmb                =   @(x,mb) mb(1).*x + mb(2);% Line equation
-        L1                  =   lxmb(x,mb);% Calculate Line #1 = y(x,m,b)
+        line1               =   lxmb(x,mb);% Calculate Line #1 = y(x,m,b)
         hix                 =   @(y,mb) [(y-mb(2))./mb(1);  y];% H intercepts
         vix                 =   @(x,mb) [x;  lxmb(x,mb)];% V intercepts
         hrz                 =   hix(x(2:end),mb)';% [X Y] Matrix of H intercepts
