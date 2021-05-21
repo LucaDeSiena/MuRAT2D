@@ -409,9 +409,9 @@ if compon ==  2
     
     for i = 1:compon:(ll-1)
         icomp                   =   icomp+1;
-        Qm(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
-        RZZ(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
-        peakd(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
+        Qm1(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
+        RZZ1(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
+        peakd1(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
     end
     
     Qm                          =   Qm1;
@@ -429,9 +429,9 @@ elseif compon == 3
         icomp                   =   icomp+1;
         
         %Averaging the horizontals before the vertical
-        Qm(icomp,1)            =   ((Qm1(i)+Qm1(i+1))/2 + Qm1(i+2))/2;
-        RZZ(icomp,1)           =   ((RZZ1(i)+RZZ1(i+1))/2 + RZZ1(i+2))/2;
-        peakd(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
+        Qm1(icomp,1)            =   ((Qm(i)+Qm(i+1))/2 + Qm(i+2))/2;
+        RZZ1(icomp,1)           =   ((RZZ1(i)+RZZ(i+1))/2 + RZZ(i+2))/2;
+        peakd1(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
     end
     
     Qm                          =   Qm1;
