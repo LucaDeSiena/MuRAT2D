@@ -33,10 +33,7 @@ if pa==3
 end
 
 xx              =   XY(:,1);
-yy              =   XY(:,2);
 lxy             =   length(xx);
-x1              =   Murat.geometry.x;
-y1              =   Murat.geometry.y;
 
 % INVERSION
 nonlinear       =   Murat.inversion.nonlinear;
@@ -103,7 +100,7 @@ for i = 1:lls %loop through source-station pairs
     Wn                      =   ([cf-cf/3 cf+cf/3]/srate*2); %frequency band
     [z,p,k]                 =   butter(4,Wn,'bandpass'); %butter filter
     [sos,g]                 =   zp2sos(z,p,k); % Convert to SOS form
-    %Hd                      =   dfilt.df2tsos(sos,g); % Create a dfilt object
+    %Hd                     =   dfilt.df2tsos(sos,g); % Create a dfilt object
     
     %Now using filtfilt to avoid phase shift
     fsisma                  =   filtfilt(sos,g,tsisma);% filtered waveform
@@ -268,60 +265,54 @@ for i = 1:lls %loop through source-station pairs
     
     %Geometry required to set the length of the segments used to weight
     %peak-delay mapping
-    miix                    =   min(sst(1),sst(4));
-    maax                    =   max(sst(1),sst(4));
-    miiy                    =   min(sst(2),sst(5));
-    maay                    =   max(sst(2),sst(5));
-    
-    startNode               =   find(xx<miix & yy<miiy,1,'last');
-    dist1                   =   sqrt((maax-miix)^2+(maay-miiy)^2);
-    fx                      =   xx>miix & xx<maax;
-    fy                      =   yy>miiy & yy<maay;
-    
-    if isempty(find(fx, 1)) && isempty(find(fy, 1))
-        label               =   startNode;
-        Apd(i,label)        =   dist1;
+    ab                      =	polyfit([sst(1), sst(4)], [sst(2), sst(5)], 1);
+    if sst(4) < sst(1)
+        xPD                 =   sst(1):-100:sst(4);
     else
-        %%%=NEW CODE - looking for slope and intercept
-        mb                  =   polyfit([sst(1) sst(4)]-x1(1),[sst(2) sst(5)]-y1(1),1);
-        x                   =   x1-x1(1);  % X-range no origin
-        y                   =   y1-y1(1);  % Y-range no origin
-        lxmb                =   @(x,mb) mb(1).*x + mb(2);% Line equation
-        L1                  =   lxmb(x,mb);% Calculate Line #1 = y(x,m,b)
-        hix                 =   @(y,mb) [(y-mb(2))./mb(1);  y];% H intercepts
-        vix                 =   @(x,mb) [x;  lxmb(x,mb)];% V intercepts
-        hrz                 =   hix(x(2:end),mb)';% [X Y] Matrix of H intercepts
-        vrt                 =   vix(y(1:6),mb)';% [X Y] Matrix of V intercepts
-        
-        %Add back origin and set up columns
-        hrz                 =   [hrz(:,1)+x1(1) hrz(:,2)+y1(1)];
-        vrt                 =   [vrt(:,1)+x1(1) vrt(:,2)+y1(1)];
-        %Find intercepts in segment
-        svrt = vrt(vrt(:,1)>miix & vrt(:,1)<maax,:);
-        shrz = hrz(hrz(:,2)>miiy & hrz(:,2)<maay,:);
-        %Add source and station
-        m1                  =   [sst(1) sst(2)];
-        m2                  =   [sst(4) sst(5)];
-        %Order by x
-        s=sortrows([m1; svrt; shrz; m2]);
-        ls1=length(s);
-        %Calculate lengths
-        diffs=diff(s);
-        ls=length(diffs(:,1));
-        for sss=1:ls
-            diffs(sss,3)=sqrt(diffs(sss,1)^2+diffs(sss,2)^2);
-        end
-        s(2:ls1,3)=diffs(:,3);
-        %Find blocks
-        for kn=2:ls1
-            label               =...
-                find(xx<s(kn,1) & yy<s(kn,2),1,'last');
-            s(kn,4)             =   label;
-            Apd(i,label)        =   Apd(i,label)+ s(kn,3);
-        end
-        Ac(i,:)=Apd(i,:);
+        xPD                 =   sst(1):100:sst(4);
     end
     
+    yPD                     =   ab(1)*xPD+ab(2);
+    uX                      =   unique(XY(:,1));
+    uY                      =   unique(XY(:,2));
+    deltaStep               =   [uX(2)-uX(1) uY(2)-uY(1)];
+    sorg                    =   [xPD(1) yPD(1)];
+     
+    bS                      =   XY(:,1) <= sorg(1)...
+        & sorg(1) < XY(:,1)+deltaStep(1)...
+        & XY(:,2) <= sorg(2) & sorg(2) < XY(:,2)+deltaStep(2);
+    
+    if isempty(bS)
+        error('Source outside grid!!')
+    end
+    
+    % Creation of file inte, which samples the crossing points of the ray
+    inte                    =   [sorg(1:2),0,0];
+    index                   =   1;
+    
+    for n = 2:length(xPD)
+        
+        recei               =   [xPD(n) yPD(n)];
+        bR                  =   XY(:,1) <= recei(1)...
+            & recei(1) < XY(:,1)+deltaStep(1)...
+            & XY(:,2) <= recei(2) & recei(2) < XY(:,2)+deltaStep(2);
+        
+        if ~isequal(bS,bR) || isequal(i,length(xPD))
+            index           =   index+1;
+            inte(index,1:2)     =   recei;
+            lung            =...
+                sqrt((recei(1)-sorg(1))^2 + (recei(2)-sorg(2))^2);
+            bS1             =   find(bS);
+            inte(index,1:4) =   [recei(1:2),lung,bS1];
+            bS              =   bR;
+            sorg            =   recei;
+        end
+        
+    end
+    
+    Apd(i,inte(2:end,4))    =   inte(2:end,3)';
+    Ac(i,:)=Apd(i,:);
+
     %Inversion matrix for Qc
     if pa == 2 % Approximate kernels
         
@@ -409,9 +400,9 @@ if compon ==  2
     
     for i = 1:compon:(ll-1)
         icomp                   =   icomp+1;
-        Qm1(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
-        RZZ1(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
-        peakd1(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
+        Qm(icomp,1)            =   (Qm(i,1)+Qm(i+1))/2;
+        RZZ(icomp,1)           =   (RZZ(i,1)+RZZ(i+1))/2;
+        peakd(icomp,1)         =   (peakd(i,1)+peakd(i+1))/2;
     end
     
     Qm                          =   Qm1;
@@ -429,9 +420,9 @@ elseif compon == 3
         icomp                   =   icomp+1;
         
         %Averaging the horizontals before the vertical
-        Qm1(icomp,1)            =   ((Qm(i)+Qm(i+1))/2 + Qm(i+2))/2;
-        RZZ1(icomp,1)           =   ((RZZ1(i)+RZZ(i+1))/2 + RZZ(i+2))/2;
-        peakd1(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
+        Qm(icomp,1)            =   ((Qm1(i)+Qm1(i+1))/2 + Qm1(i+2))/2;
+        RZZ(icomp,1)           =   ((RZZ1(i)+RZZ1(i+1))/2 + RZZ1(i+2))/2;
+        peakd(icomp,1)         =   ((peakd(i)+peakd(i+1))/2 +peakd(i+2))/2;
     end
     
     Qm                          =   Qm1;
