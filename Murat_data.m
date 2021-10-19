@@ -266,12 +266,8 @@ for i = 1:lls %loop through source-station pairs
     %Geometry required to set the length of the segments used to weight
     %peak-delay mapping
     ab                      =	polyfit([sst(1), sst(4)], [sst(2), sst(5)], 1);
-    if sst(4) < sst(1)
-        xPD                 =   sst(1):-100:sst(4);
-    else
-        xPD                 =   sst(1):100:sst(4);
-    end
-    
+    step                    =   (sst(4)-sst(1))/10000;
+    xPD                     =   sst(1):step:sst(4);    
     yPD                     =   ab(1)*xPD+ab(2);
     uX                      =   unique(XY(:,1));
     uY                      =   unique(XY(:,2));
